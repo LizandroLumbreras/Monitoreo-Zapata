@@ -27,7 +27,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       padding: 15px;
-      width: 320px;
+      width: 340px;
     }
     .tarjeta h3 {
       margin: 0 0 10px;
@@ -47,6 +47,18 @@
       padding: 4px 0;
       border-bottom: 1px solid #ccc;
       font-size: 13px;
+    }
+    .firmas {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .firmas img {
+      max-width: 120px;
+      max-height: 60px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: white;
     }
   </style>
 </head>
@@ -84,6 +96,9 @@
           grupos[folio] = {
             fecha: data.fecha,
             entrega: data.entrega,
+            firmaEntrega: data.firmaEntrega || null,
+            recibe: data.recibe,
+            firmaRecibe: data.firmaRecibe || null,
             destino: data.destino,
             productos: []
           };
@@ -104,6 +119,13 @@
           <p><strong>Fecha:</strong> ${info.fecha || 'N/A'}</p>
           <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
           <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
+          <div class="firmas">
+            ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
+          </div>
+          <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
+          <div class="firmas">
+            ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
+          </div>
           <div class="productos">
             <strong>Artículos:</strong>
             ${info.productos.map(p => `
@@ -122,3 +144,4 @@
   </script>
 </body>
 </html>
+
