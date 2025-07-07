@@ -8,50 +8,82 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
+      margin: 0;
       padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00416A, #E4E5E6);
+      color: white;
+      min-height: 100vh;
+      position: relative;
+      box-sizing: border-box;
     }
+
+    .marca-agua {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.08;
+      z-index: 0;
+      max-width: 80%;
+      height: auto;
+      pointer-events: none;
+    }
+
     h2 {
       text-align: center;
-      color: #00416A;
+      color: white;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
     }
+
     .tarjetas-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
+      position: relative;
+      z-index: 2;
     }
+
     .tarjeta {
       background: white;
+      color: #333;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       padding: 15px;
       width: 340px;
     }
+
     .tarjeta h3 {
       margin: 0 0 10px;
       color: #d32f2f;
     }
+
     .tarjeta p {
       margin: 4px 0;
       font-size: 14px;
     }
+
     .productos {
       margin-top: 10px;
       padding: 8px;
       background: #f1f1f1;
       border-radius: 6px;
     }
+
     .productos div {
       padding: 4px 0;
       border-bottom: 1px solid #ccc;
       font-size: 13px;
     }
+
     .firmas {
       margin-top: 10px;
       text-align: center;
     }
+
     .firmas img {
       max-width: 120px;
       max-height: 60px;
@@ -63,96 +95,96 @@
   </style>
 </head>
 <body>
+  <img src="logo_proveedora.png" alt="Logo La Proveedora" class="marca-agua">
   <h2>Monitoreo de Salidas - Almacén Zapata</h2>
   <div class="tarjetas-container" id="contenedorTarjetas"></div>
 
   <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
-    authDomain: "inventariopv-643f1.firebaseapp.com",
-    projectId: "inventariopv-643f1",
-    storageBucket: "inventariopv-643f1.appspot.com",
-    messagingSenderId: "96242533231",
-    appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
+      authDomain: "inventariopv-643f1.firebaseapp.com",
+      projectId: "inventariopv-643f1",
+      storageBucket: "inventariopv-643f1.appspot.com",
+      messagingSenderId: "96242533231",
+      appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+    };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const contenedor = document.getElementById("contenedorTarjetas");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const contenedor = document.getElementById("contenedorTarjetas");
 
-  function formatearFecha(fechaFirestore) {
-    const fecha = fechaFirestore.toDate();
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const anio = fecha.getFullYear();
-    const hora = String(fecha.getHours()).padStart(2, '0');
-    const min = String(fecha.getMinutes()).padStart(2, '0');
-    const seg = String(fecha.getSeconds()).padStart(2, '0');
-    return `${dia}/${mes}/${anio} ${hora}:${min}:${seg}`;
-  }
+    function formatearFecha(fechaFirestore) {
+      const fecha = fechaFirestore.toDate();
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const anio = fecha.getFullYear();
+      const hora = String(fecha.getHours()).padStart(2, '0');
+      const min = String(fecha.getMinutes()).padStart(2, '0');
+      const seg = String(fecha.getSeconds()).padStart(2, '0');
+      return `${dia}/${mes}/${anio} ${hora}:${min}:${seg}`;
+    }
 
-  async function cargarSalidasZapata() {
-    const snapshot = await db.collection("almacenes")
-      .doc("Almacen_Zapata")
-      .collection("salidas")
-      .orderBy("folio")
-      .get();
+    async function cargarSalidasZapata() {
+      const snapshot = await db.collection("almacenes")
+        .doc("Almacen_Zapata")
+        .collection("salidas")
+        .orderBy("folio")
+        .get();
 
-    const grupos = {};
+      const grupos = {};
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const folio = data.folio || "SIN FOLIO";
-      if (!grupos[folio]) {
-        grupos[folio] = {
-          timestamp: data.timestamp,
-          entrega: data.entrega,
-          firmaEntrega: data.firmaEntrega || null,
-          recibe: data.recibe,
-          firmaRecibe: data.firmaRecibe || null,
-          destino: data.destino,
-          productos: []
-        };
-      }
-      grupos[folio].productos.push({
-        descripcion: data.descripcion,
-        codigo: data.codigo,
-        cantidad: data.cantidad,
-        costo: data.costo
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const folio = data.folio || "SIN FOLIO";
+        if (!grupos[folio]) {
+          grupos[folio] = {
+            timestamp: data.timestamp,
+            entrega: data.entrega,
+            firmaEntrega: data.firmaEntrega || null,
+            recibe: data.recibe,
+            firmaRecibe: data.firmaRecibe || null,
+            destino: data.destino,
+            productos: []
+          };
+        }
+        grupos[folio].productos.push({
+          descripcion: data.descripcion,
+          codigo: data.codigo,
+          cantidad: data.cantidad,
+          costo: data.costo
+        });
       });
-    });
 
-    Object.entries(grupos).forEach(([folio, info]) => {
-      const tarjeta = document.createElement("div");
-      tarjeta.className = "tarjeta";
-      tarjeta.innerHTML = `
-        <h3>Folio: ${folio}</h3>
-        <p><strong>Fecha:</strong> ${info.timestamp ? formatearFecha(info.timestamp) : 'N/A'}</p>
-        <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
-        <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
-        <div class="firmas">
-          ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
-        </div>
-        <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
-        <div class="firmas">
-          ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
-        </div>
-        <div class="productos">
-          <strong>Artículos:</strong>
-          ${info.productos.map(p => `
-            <div>
-              ${p.descripcion}<br>
-              <small><b>Código:</b> ${p.codigo} | <b>Cantidad:</b> ${p.cantidad} | <b>Costo:</b> $${p.costo}</small>
-            </div>
-          `).join('')}
-        </div>
-      `;
-      contenedor.appendChild(tarjeta);
-    });
-  }
+      Object.entries(grupos).forEach(([folio, info]) => {
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "tarjeta";
+        tarjeta.innerHTML = `
+          <h3>Folio: ${folio}</h3>
+          <p><strong>Fecha:</strong> ${info.timestamp ? formatearFecha(info.timestamp) : 'N/A'}</p>
+          <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
+          <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
+          <div class="firmas">
+            ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
+          </div>
+          <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
+          <div class="firmas">
+            ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
+          </div>
+          <div class="productos">
+            <strong>Artículos:</strong>
+            ${info.productos.map(p => `
+              <div>
+                ${p.descripcion}<br>
+                <small><b>Código:</b> ${p.codigo} | <b>Cantidad:</b> ${p.cantidad} | <b>Costo:</b> $${p.costo}</small>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        contenedor.appendChild(tarjeta);
+      });
+    }
 
-  cargarSalidasZapata();
-</script>
+    cargarSalidasZapata();
+  </script>
 </body>
 </html>
-
