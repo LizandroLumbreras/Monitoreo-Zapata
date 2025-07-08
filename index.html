@@ -156,32 +156,44 @@
       });
 
       Object.entries(grupos).forEach(([folio, info]) => {
-        const tarjeta = document.createElement("div");
-        tarjeta.className = "tarjeta";
-        tarjeta.innerHTML = `
-          <h3>Folio: ${folio}</h3>
-          <p><strong>Fecha:</strong> ${info.timestamp ? formatearFecha(info.timestamp) : 'N/A'}</p>
-          <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
-          <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
-          <div class="firmas">
-            ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
-          </div>
-          <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
-          <div class="firmas">
-            ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
-          </div>
-          <div class="productos">
-            <strong>Artículos:</strong>
-            ${info.productos.map(p => `
-              <div>
-                ${p.descripcion}<br>
-                <small><b>Código:</b> ${p.codigo} | <b>Cantidad:</b> ${p.cantidad} | <b>Costo:</b> $${p.costo}</small>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        contenedor.appendChild(tarjeta);
-      });
+  const tarjeta = document.createElement("div");
+  tarjeta.className = "tarjeta";
+
+  // Calcular total por tarjeta
+  const total = info.productos.reduce((sum, p) => {
+    const cantidad = parseFloat(p.cantidad) || 0;
+    const costo = parseFloat(p.costo) || 0;
+    return sum + cantidad * costo;
+  }, 0);
+
+  tarjeta.innerHTML = `
+    <h3>Folio: ${folio}</h3>
+    <p><strong>Fecha:</strong> ${info.timestamp ? formatearFecha(info.timestamp) : 'N/A'}</p>
+    <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
+    <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
+    <div class="firmas">
+      ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
+    </div>
+    <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
+    <div class="firmas">
+      ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
+    </div>
+    <div class="productos">
+      <strong>Artículos:</strong>
+      ${info.productos.map(p => `
+        <div>
+          ${p.descripcion}<br>
+          <small><b>Código:</b> ${p.codigo} | <b>Cantidad:</b> ${p.cantidad} | <b>Costo:</b> $${p.costo}</small>
+        </div>
+      `).join('')}
+      <div style="text-align: right; font-weight: bold; margin-top: 8px;">
+        Total: $${total.toFixed(2)}
+      </div>
+    </div>
+  `;
+
+  contenedor.appendChild(tarjeta);
+});
     }
 
     cargarSalidasZapata();
