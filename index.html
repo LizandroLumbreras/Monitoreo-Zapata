@@ -1,240 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Monitoreo Salidas - Almacén Zapata</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00416A, #E4E5E6);
       margin: 0;
       padding: 20px;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #00416A, #E4E5E6);
       color: white;
-      min-height: 100vh;
-      position: relative;
-      box-sizing: border-box;
     }
 
-    .marca-agua {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0.08;
-      z-index: 0;
-      max-width: 80%;
-      height: auto;
-      pointer-events: none;
-    }
-
-    h2 {
+    h1 {
       text-align: center;
-      color: white;
       margin-bottom: 30px;
-      position: relative;
-      z-index: 2;
     }
 
-    .tarjetas-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+    .contenedor-tarjetas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
-      position: relative;
-      z-index: 2;
     }
 
     .tarjeta {
-      background: rgba(255, 255, 255, 0.85);
-      color: #333;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: white;
+      color: black;
+      border-radius: 10px;
       padding: 15px;
-      width: 340px;
-      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
     .tarjeta h3 {
-      margin: 0 0 10px;
-      color: #d32f2f;
+      margin-top: 0;
+      color: #00416A;
     }
 
-    .tarjeta p {
-      margin: 4px 0;
-      font-size: 14px;
+    .campo {
+      margin-bottom: 5px;
     }
 
-    .productos {
-      margin-top: 10px;
-      padding: 8px;
-      background: rgba(240, 240, 240, 0.8);
-      border-radius: 6px;
-    }
-
-    .productos div {
-      padding: 4px 0;
-      border-bottom: 1px solid #ccc;
-      font-size: 13px;
-    }
-
-    .firmas {
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    .firmas img {
-      max-width: 120px;
-      max-height: 60px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: white;
-    }
-
-    .btn-eliminar {
-      background-color: #d32f2f;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 12px;
-      display: block;
-      width: 100%;
-    }
-
-    .btn-eliminar:hover {
-      background-color: #b71c1c;
+    .campo strong {
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <img src="logo_proveedora.png" alt="Logo La Proveedora" class="marca-agua">
-  <h2>Monitoreo de Salidas - Almacén Zapata</h2>
-  <div class="tarjetas-container" id="contenedorTarjetas"></div>
+  <h1>Monitoreo de Salidas - Almacén Zapata</h1>
+  <div class="contenedor-tarjetas" id="contenedorTarjetas"></div>
 
-  <script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
     const firebaseConfig = {
-      apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
-      authDomain: "inventariopv-643f1.firebaseapp.com",
-      projectId: "inventariopv-643f1",
-      storageBucket: "inventariopv-643f1.appspot.com",
-      messagingSenderId: "96242533231",
-      appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_SENDER_ID",
+      appId: "TU_APP_ID"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const contenedor = document.getElementById("contenedorTarjetas");
 
-    function formatearFecha(fechaFirestore) {
-      const fecha = fechaFirestore.toDate();
-      const dia = String(fecha.getDate()).padStart(2, '0');
-      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-      const anio = fecha.getFullYear();
-      const hora = String(fecha.getHours()).padStart(2, '0');
-      const min = String(fecha.getMinutes()).padStart(2, '0');
-      const seg = String(fecha.getSeconds()).padStart(2, '0');
-      return `${dia}/${mes}/${anio} ${hora}:${min}:${seg}`;
-    }
+    async function cargarSalidas() {
+      const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("fecha", "desc"));
+      const querySnapshot = await getDocs(q);
 
-    async function cargarSalidasZapata() {
-      const snapshot = await db.collection("almacenes")
-        .doc("Almacen_Zapata")
-        .collection("salidas")
-        .orderBy("folio")
-        .get();
-
-      const grupos = {};
-
-      snapshot.forEach(doc => {
+      querySnapshot.forEach(doc => {
         const data = doc.data();
-        const folio = data.folio || "SIN FOLIO";
-        if (!grupos[folio]) {
-          grupos[folio] = {
-            timestamp: data.timestamp,
-            entrega: data.entrega,
-            firmaEntrega: data.firmaEntrega || null,
-            recibe: data.recibe,
-            firmaRecibe: data.firmaRecibe || null,
-            destino: data.destino,
-            productos: []
-          };
-        }
-        grupos[folio].productos.push({
-          descripcion: data.descripcion,
-          codigo: data.codigo,
-          cantidad: data.cantidad,
-          costo: data.costo
-        });
-      });
-
-      Object.entries(grupos).forEach(([folio, info]) => {
         const tarjeta = document.createElement("div");
         tarjeta.className = "tarjeta";
 
-        const total = info.productos.reduce((sum, p) => {
-          const cantidad = parseFloat(p.cantidad) || 0;
-          const costo = parseFloat(p.costo) || 0;
-          return sum + cantidad * costo;
-        }, 0);
-
         tarjeta.innerHTML = `
-          <h3>Folio: ${folio}</h3>
-          <p><strong>Fecha:</strong> ${info.timestamp ? formatearFecha(info.timestamp) : 'N/A'}</p>
-          <p><strong>Destino:</strong> ${info.destino || 'N/A'}</p>
-          <p><strong>Entregado por:</strong> ${info.entrega || 'N/A'}</p>
-          <div class="firmas">
-            ${info.firmaEntrega ? `<img src="${info.firmaEntrega}" alt="Firma Entrega">` : ''}
-          </div>
-          <p><strong>Recibido por:</strong> ${info.recibe || 'N/A'}</p>
-          <div class="firmas">
-            ${info.firmaRecibe ? `<img src="${info.firmaRecibe}" alt="Firma Recibe">` : ''}
-          </div>
-          <div class="productos">
-            <strong>Artículos:</strong>
-            ${info.productos.map(p => `
-              <div>
-                ${p.descripcion}<br>
-                <small><b>Código:</b> ${p.codigo} | <b>Cantidad:</b> ${p.cantidad} | <b>Costo:</b> $${p.costo}</small>
-              </div>
-            `).join('')}
-            <div style="text-align: right; font-weight: bold; margin-top: 8px;">
-              Total: $${total.toFixed(2)}
-            </div>
-          </div>
-          <button class="btn-eliminar" onclick="eliminarFolio('${folio}')">🗑 Eliminar folio</button>
+          <h3>Folio: ${data.folio || "Sin folio"}</h3>
+          <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
+          <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
+          <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
+          <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
+          <div class="campo"><strong>Total de artículos:</strong> ${data.productos?.length || 0}</div>
         `;
 
         contenedor.appendChild(tarjeta);
       });
     }
 
-    async function eliminarFolio(folio) {
-      if (!confirm(`¿Seguro que deseas eliminar todas las partidas del folio ${folio}?`)) return;
-
-      const snapshot = await db.collection("almacenes")
-        .doc("Almacen_Zapata")
-        .collection("salidas")
-        .where("folio", "==", folio)
-        .get();
-
-      const batch = db.batch();
-
-      snapshot.forEach(doc => {
-        batch.delete(doc.ref);
-      });
-
-      await batch.commit();
-      alert(`Folio ${folio} eliminado correctamente.`);
-      location.reload();
-    }
-
-    cargarSalidasZapata();
+    cargarSalidas();
   </script>
 </body>
 </html>
