@@ -71,7 +71,7 @@
     const contenedor = document.getElementById("contenedorTarjetas");
 
     async function cargarSalidas() {
-      const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("fecha", "desc"));
+     const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("folio", "desc"));
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach(doc => {
