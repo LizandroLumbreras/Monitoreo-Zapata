@@ -55,7 +55,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-   const firebaseConfig = {
+    const firebaseConfig = {
   apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
   authDomain: "inventariopv-643f1.firebaseapp.com",
   projectId: "inventariopv-643f1",
@@ -63,6 +63,7 @@
   messagingSenderId: "96242533231",
   appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
 };
+
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -79,17 +80,19 @@
         tarjeta.className = "tarjeta";
 
         tarjeta.innerHTML = `
-          <h3>Folio: ${data.folio || "Sin folio"}</h3>
-          <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
-          <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
-          <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
-          <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-          <div class="campo"><strong>Artículos:</strong></div>
-          <ul>
-          ${(data.articulos || []).map(item => `
-          <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
-          `).join('')}
-          </ul>
+  <h3>Folio: ${data.folio || "Sin folio"}</h3>
+  <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
+  <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
+  <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
+  <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
+  <div class="campo"><strong>Artículos:</strong></div>
+  <ul>
+    ${(data.articulos || []).map(item => `
+      <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
+    `).join('')}
+  </ul>
+`;
+
 
         contenedor.appendChild(tarjeta);
       });
