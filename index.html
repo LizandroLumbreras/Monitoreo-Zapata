@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<div class="campo"><strong>Total d<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -84,8 +84,12 @@
           <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
           <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
           <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-          <div class="campo"><strong>Total de artículos:</strong> ${data.productos?.length || 0}</div>
-        `;
+          <div class="campo"><strong>Artículos:</strong></div>
+          <ul>
+          ${(data.articulos || []).map(item => `
+          <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
+          `).join('')}
+          </ul>
 
         contenedor.appendChild(tarjeta);
       });
