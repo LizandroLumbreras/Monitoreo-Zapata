@@ -15,7 +15,19 @@
 
     h1 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filtro {
+      text-align: center;
       margin-bottom: 30px;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
     }
 
     .contenedor-tarjetas {
@@ -48,6 +60,26 @@
 </head>
 <body>
   <h1>Monitoreo de Salidas - Almacén Zapata</h1>
+
+  <div class="filtro">
+    <label for="mes">Filtrar por mes:</label>
+    <select id="mes" onchange="filtrarPorMes()">
+      <option value="todos">Todos</option>
+      <option value="01">Enero</option>
+      <option value="02">Febrero</option>
+      <option value="03">Marzo</option>
+      <option value="04">Abril</option>
+      <option value="05">Mayo</option>
+      <option value="06">Junio</option>
+      <option value="07">Julio</option>
+      <option value="08">Agosto</option>
+      <option value="09">Septiembre</option>
+      <option value="10">Octubre</option>
+      <option value="11">Noviembre</option>
+      <option value="12">Diciembre</option>
+    </select>
+  </div>
+
   <div class="contenedor-tarjetas" id="contenedorTarjetas"></div>
 
   <!-- Firebase SDK -->
@@ -56,47 +88,74 @@
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
-  authDomain: "inventariopv-643f1.firebaseapp.com",
-  projectId: "inventariopv-643f1",
-  storageBucket: "inventariopv-643f1.firebasestorage.app",
-  messagingSenderId: "96242533231",
-  appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
-};
-
+      apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
+      authDomain: "inventariopv-643f1.firebaseapp.com",
+      projectId: "inventariopv-643f1",
+      storageBucket: "inventariopv-643f1.appspot.com",
+      messagingSenderId: "96242533231",
+      appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const contenedor = document.getElementById("contenedorTarjetas");
+    let todasLasSalidas = [];
 
     async function cargarSalidas() {
-     const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("folio", "desc"));
+      const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("folio", "desc"));
       const querySnapshot = await getDocs(q);
+      todasLasSalidas = [];
 
       querySnapshot.forEach(doc => {
         const data = doc.data();
+        todasLasSalidas.push(data);
+      });
+
+      renderizarTarjetas(todasLasSalidas);
+    }
+
+    function renderizarTarjetas(lista) {
+      contenedor.innerHTML = "";
+
+      lista.forEach(data => {
         const tarjeta = document.createElement("div");
         tarjeta.className = "tarjeta";
 
         tarjeta.innerHTML = `
-  <h3>Folio: ${data.folio || "Sin folio"}</h3>
-  <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
-  <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
-  <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
-  <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-  <div class="campo"><strong>Artículos:</strong></div>
-  <ul>
-    ${(data.articulos || []).map(item => `
-      <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
-    `).join('')}
-  </ul>
-`;
-
+          <h3>Folio: ${data.folio || "Sin folio"}</h3>
+          <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
+          <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
+          <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
+          <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
+          <div class="campo"><strong>Artículos:</strong></div>
+          <ul>
+            ${(data.articulos || []).map(item => `
+              <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
+            `).join('')}
+          </ul>
+        `;
 
         contenedor.appendChild(tarjeta);
       });
     }
+
+    window.filtrarPorMes = function () {
+      const mesSeleccionado = document.getElementById("mes").value;
+
+      if (mesSeleccionado === "todos") {
+        renderizarTarjetas(todasLasSalidas);
+        return;
+      }
+
+      const filtradas = todasLasSalidas.filter(data => {
+        if (!data.fecha) return false;
+        const partes = data.fecha.split("-"); // formato esperado: YYYY-MM-DD
+        return partes[1] === mesSeleccionado;
+      });
+
+      renderizarTarjetas(filtradas);
+    };
 
     cargarSalidas();
   </script>
