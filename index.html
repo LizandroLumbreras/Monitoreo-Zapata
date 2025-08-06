@@ -56,6 +56,33 @@
     .campo strong {
       color: #333;
     }
+
+    .firmas {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .firma {
+      flex: 1;
+      text-align: center;
+    }
+
+    .firma img {
+      width: 100%;
+      max-width: 140px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .firma label {
+      display: block;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +161,16 @@
               <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
             `).join('')}
           </ul>
+          <div class="firmas">
+            <div class="firma">
+              <img src="${data.firmaEntrega || ''}" alt="Firma Entrega" />
+              <label>Firma entrega</label>
+            </div>
+            <div class="firma">
+              <img src="${data.firmaRecibe || ''}" alt="Firma Recibe" />
+              <label>Firma recibe</label>
+            </div>
+          </div>
         `;
 
         contenedor.appendChild(tarjeta);
