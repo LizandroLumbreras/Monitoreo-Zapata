@@ -142,41 +142,41 @@
       renderizarTarjetas(todasLasSalidas);
     }
 
-    function renderizarTarjetas(lista) {
-      contenedor.innerHTML = "";
+function renderizarTarjetas(lista) {
+  contenedor.innerHTML = "";
 
-      lista.forEach(data => {
-        const tarjeta = document.createElement("div");
-        tarjeta.className = "tarjeta";
+  lista.forEach(data => {
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "tarjeta";
 
-        tarjeta.innerHTML = `
-          <h3>Folio: ${data.folio || "Sin folio"}</h3>
-          <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
-          <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
-          <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
-          <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-          <div class="campo"><strong>Artículos:</strong></div>
-          <ul>
-            ${(data.articulos || []).map(item => `
-              <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
-            `).join('')}
-          </ul>
-          <div class="firmas">
-            <div class="firma">
-              <img src="${data.firmaEntrega || ''}" alt="Firma Entrega" />
-              <label>Firma entrega</label>
-            </div>
-            <div class="firma">
-              <img src="${data.firmaRecibe || ''}" alt="Firma Recibe" />
-              <label>Firma recibe</label>
-            </div>
-          </div>
-        `;
+    tarjeta.innerHTML = `
+      <h3>Folio: ${data.folio || "Sin folio"}</h3>
+      <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
+      <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
+      <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
+      <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
+      <div class="campo"><strong>Número de cincho:</strong> ${data.cincho || "Sin asignar"}</div>
+      <div class="campo"><strong>Artículos:</strong></div>
+      <ul>
+        ${(data.articulos || []).map(item => `
+          <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
+        `).join('')}
+      </ul>
+      <div class="firmas">
+        <div class="firma">
+          <img src="${data.firmaEntrega || ''}" alt="Firma Entrega" />
+          <label>Firma entrega</label>
+        </div>
+        <div class="firma">
+          <img src="${data.firmaRecibe || ''}" alt="Firma Recibe" />
+          <label>Firma recibe</label>
+        </div>
+      </div>
+    `;
 
-        contenedor.appendChild(tarjeta);
-      });
-    }
-
+    contenedor.appendChild(tarjeta);
+  });
+}
     window.filtrarPorMes = function () {
       const mesSeleccionado = document.getElementById("mes").value;
 
