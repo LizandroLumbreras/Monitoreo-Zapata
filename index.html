@@ -110,38 +110,72 @@
   <div class="contenedor-tarjetas" id="contenedorTarjetas"></div>
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+  getFirestore, collection, getDocs, query, orderBy 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
-      authDomain: "inventariopv-643f1.firebaseapp.com",
-      projectId: "inventariopv-643f1",
-      storageBucket: "inventariopv-643f1.appspot.com",
-      messagingSenderId: "96242533231",
-      appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
+  authDomain: "inventariopv-643f1.firebaseapp.com",
+  projectId: "inventariopv-643f1",
+  storageBucket: "inventariopv-643f1.appspot.com",
+  messagingSenderId: "96242533231",
+  appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const contenedor = document.getElementById("contenedorTarjetas");
-    let todasLasSalidas = [];
+const contenedor = document.getElementById("contenedorTarjetas");
+let todasLasSalidas = [];
 
-    async function cargarSalidas() {
-      const q = query(collection(db, "almacenes", "almacen_zapata", "salidas"), orderBy("folio", "desc"));
-      const querySnapshot = await getDocs(q);
-      todasLasSalidas = [];
+/* ================================
+   🔵 CARGAR SALIDAS DE AMBAS RUTAS
+   ================================ */
+async function cargarSalidas() {
+  todasLasSalidas = [];
 
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        todasLasSalidas.push(data);
-      });
+  // Ruta antigua
+  const q1 = query(
+    collection(db, "almacenes", "almacen_zapata", "salidas"),
+    orderBy("folio", "desc")
+  );
+  const snap1 = await getDocs(q1);
 
-      renderizarTarjetas(todasLasSalidas);
-    }
+  snap1.forEach(doc => {
+    const data = doc.data();
+    data._origen = "salidas"; // opcional
+    todasLasSalidas.push(data);
+  });
 
+  // Ruta nueva
+  const q2 = query(
+    collection(db, "almacenes", "almacen_zapata", "salidas1.0"),
+    orderBy("folio", "desc")
+  );
+  const snap2 = await getDocs(q2);
+
+  snap2.forEach(doc => {
+    const data = doc.data();
+    data._origen = "salidas1.0"; // opcional
+    todasLasSalidas.push(data);
+  });
+
+  // 🔄 Ordenar todas juntas por folio descendente
+  todasLasSalidas.sort((a, b) => {
+    const folioA = (a.folio || "").toString().replace(/\D/g, "");
+    const folioB = (b.folio || "").toString().replace(/\D/g, "");
+    return Number(folioB) - Number(folioA);
+  });
+
+  renderizarTarjetas(todasLasSalidas);
+}
+
+/* ============================
+   🔵 RENDER TARJETAS
+   ============================ */
 function renderizarTarjetas(lista) {
   contenedor.innerHTML = "";
 
@@ -155,20 +189,22 @@ function renderizarTarjetas(lista) {
       <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
       <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
       <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-      <div class="campo"><strong>Número de cincho:</strong> ${data.cincho || "Sin asignar"}</div>
+      <div class="campo"><strong>Cincho:</strong> ${data.folioCincho || "Sin asignar"}</div>
+
       <div class="campo"><strong>Artículos:</strong></div>
       <ul>
         ${(data.articulos || []).map(item => `
           <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
-        `).join('')}
+        `).join("")}
       </ul>
+
       <div class="firmas">
         <div class="firma">
-          <img src="${data.firmaEntrega || ''}" alt="Firma Entrega" />
+          <img src="${data.firmaEntrega || ""}" alt="Firma Entrega">
           <label>Firma entrega</label>
         </div>
         <div class="firma">
-          <img src="${data.firmaRecibe || ''}" alt="Firma Recibe" />
+          <img src="${data.firmaRecibe || ""}" alt="Firma Recibe">
           <label>Firma recibe</label>
         </div>
       </div>
@@ -177,24 +213,28 @@ function renderizarTarjetas(lista) {
     contenedor.appendChild(tarjeta);
   });
 }
-    window.filtrarPorMes = function () {
-      const mesSeleccionado = document.getElementById("mes").value;
 
-      if (mesSeleccionado === "todos") {
-        renderizarTarjetas(todasLasSalidas);
-        return;
-      }
+/* ============================
+   🔵 FILTRO DE MES
+   ============================ */
+window.filtrarPorMes = function () {
+  const mesSeleccionado = document.getElementById("mes").value;
 
-      const filtradas = todasLasSalidas.filter(data => {
-        if (!data.fecha) return false;
-        const partes = data.fecha.split("-"); // formato esperado: YYYY-MM-DD
-        return partes[1] === mesSeleccionado;
-      });
+  if (mesSeleccionado === "todos") {
+    renderizarTarjetas(todasLasSalidas);
+    return;
+  }
 
-      renderizarTarjetas(filtradas);
-    };
+  const filtradas = todasLasSalidas.filter(data => {
+    if (!data.fecha) return false;
+    const partes = data.fecha.split("-");
+    return partes[1] === mesSeleccionado;
+  });
 
-    cargarSalidas();
-  </script>
+  renderizarTarjetas(filtradas);
+};
+
+cargarSalidas();
+</script>
 </body>
 </html>
