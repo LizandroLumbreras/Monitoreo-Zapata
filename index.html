@@ -4,237 +4,478 @@
   <meta charset="UTF-8" />
   <title>Monitoreo Salidas - Almacén Zapata</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #00416A, #E4E5E6);
-      margin: 0;
-      padding: 20px;
-      color: white;
+
+    *{
+      box-sizing:border-box;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+    body{
+      font-family:Arial,sans-serif;
+      background:linear-gradient(to right,#00416A,#E4E5E6);
+      margin:0;
+      padding:20px;
+      color:white;
     }
 
-    .filtro {
-      text-align: center;
-      margin-bottom: 30px;
+    h1{
+      text-align:center;
+      margin-bottom:20px;
     }
 
-    select {
-      padding: 8px 12px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+    .filtros{
+      display:flex;
+      justify-content:center;
+      gap:15px;
+      flex-wrap:wrap;
+      margin-bottom:25px;
     }
 
-    .contenedor-tarjetas {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    .filtros select,
+    .filtros input{
+      padding:10px;
+      border:none;
+      border-radius:8px;
+      font-size:15px;
+      min-width:180px;
     }
 
-    .tarjeta {
-      background: white;
-      color: black;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    .contenedor-tarjetas{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:20px;
     }
 
-    .tarjeta h3 {
-      margin-top: 0;
-      color: #00416A;
+    .tarjeta{
+      background:white;
+      color:black;
+      border-radius:12px;
+      padding:15px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
     }
 
-    .campo {
-      margin-bottom: 5px;
+    .tarjeta h3{
+      margin-top:0;
+      color:#00416A;
+      font-size:18px;
+      word-break:break-word;
     }
 
-    .campo strong {
-      color: #333;
+    .campo{
+      margin-bottom:8px;
+      font-size:14px;
     }
 
-    .firmas {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-      gap: 10px;
+    .campo strong{
+      color:#222;
     }
 
-    .firma {
-      flex: 1;
-      text-align: center;
+    ul{
+      padding-left:18px;
+      margin-top:5px;
     }
 
-    .firma img {
-      width: 100%;
-      max-width: 140px;
-      height: auto;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    li{
+      margin-bottom:6px;
+      font-size:14px;
     }
 
-    .firma label {
-      display: block;
-      margin-top: 5px;
-      font-size: 12px;
-      color: #555;
+    .firmas{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:20px;
     }
+
+    .firma{
+      flex:1;
+      text-align:center;
+    }
+
+    .firma img{
+      width:100%;
+      max-width:140px;
+      height:80px;
+      object-fit:contain;
+      border:1px solid #ccc;
+      border-radius:5px;
+      background:white;
+    }
+
+    .firma label{
+      display:block;
+      margin-top:5px;
+      font-size:12px;
+      color:#555;
+    }
+
+    .sin-resultados{
+      text-align:center;
+      font-size:18px;
+      margin-top:40px;
+      color:white;
+    }
+
   </style>
 </head>
+
 <body>
-  <h1>Monitoreo de Salidas - Almacén Zapata</h1>
 
-  <div class="filtro">
-    <label for="mes">Filtrar por mes:</label>
-    <select id="mes" onchange="filtrarPorMes()">
-      <option value="todos">Todos</option>
-      <option value="01">Enero</option>
-      <option value="02">Febrero</option>
-      <option value="03">Marzo</option>
-      <option value="04">Abril</option>
-      <option value="05">Mayo</option>
-      <option value="06">Junio</option>
-      <option value="07">Julio</option>
-      <option value="08">Agosto</option>
-      <option value="09">Septiembre</option>
-      <option value="10">Octubre</option>
-      <option value="11">Noviembre</option>
-      <option value="12">Diciembre</option>
-    </select>
-  </div>
+<h1>Monitoreo de Salidas - Almacén Zapata</h1>
 
-  <div class="contenedor-tarjetas" id="contenedorTarjetas"></div>
+<div class="filtros">
 
-  <!-- Firebase SDK -->
+  <!-- 🔥 SOLO MES ACTUAL -->
+  <select id="mes" onchange="filtrarSalidas()">
+
+    <option value="01">Enero</option>
+    <option value="02">Febrero</option>
+    <option value="03">Marzo</option>
+    <option value="04">Abril</option>
+    <option value="05">Mayo</option>
+    <option value="06">Junio</option>
+    <option value="07">Julio</option>
+    <option value="08">Agosto</option>
+    <option value="09">Septiembre</option>
+    <option value="10">Octubre</option>
+    <option value="11">Noviembre</option>
+    <option value="12">Diciembre</option>
+
+  </select>
+
+  <!-- 🔥 BUSCAR POR FECHA -->
+  <input
+    type="date"
+    id="fechaBusqueda"
+    onchange="filtrarSalidas()"
+  />
+
+</div>
+
+<div
+  class="contenedor-tarjetas"
+  id="contenedorTarjetas"
+></div>
+
+<!-- FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { 
-  getFirestore, collection, getDocs, query, orderBy 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query
+}
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ==========================================
+   FIREBASE CONFIG
+========================================== */
 
 const firebaseConfig = {
+
   apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
+
   authDomain: "inventariopv-643f1.firebaseapp.com",
+
   projectId: "inventariopv-643f1",
+
   storageBucket: "inventariopv-643f1.appspot.com",
+
   messagingSenderId: "96242533231",
+
   appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
-const contenedor = document.getElementById("contenedorTarjetas");
+const contenedor =
+  document.getElementById("contenedorTarjetas");
+
 let todasLasSalidas = [];
 
-/* ================================
-   🔵 CARGAR SALIDAS DE AMBAS RUTAS
-   ================================ */
-async function cargarSalidas() {
-  todasLasSalidas = [];
+/* ==========================================
+   CARGAR SALIDAS
+========================================== */
 
-  // Ruta antigua
-  const q1 = query(
-    collection(db, "almacenes", "almacen_zapata", "salidas"),
-    orderBy("folio", "desc")
-  );
-  const snap1 = await getDocs(q1);
+async function cargarSalidas(){
 
-  snap1.forEach(doc => {
-    const data = doc.data();
-    data._origen = "salidas"; // opcional
-    todasLasSalidas.push(data);
-  });
+  try{
 
-  // Ruta nueva
-  const q2 = query(
-    collection(db, "almacenes", "almacen_zapata", "salidas1.0"),
-    orderBy("folio", "desc")
-  );
-  const snap2 = await getDocs(q2);
+    todasLasSalidas = [];
 
-  snap2.forEach(doc => {
-    const data = doc.data();
-    data._origen = "salidas1.0"; // opcional
-    todasLasSalidas.push(data);
-  });
+    const q1 = query(
 
-  // 🔄 Ordenar todas juntas por folio descendente
-  todasLasSalidas.sort((a, b) => {
-    const folioA = (a.folio || "").toString().replace(/\D/g, "");
-    const folioB = (b.folio || "").toString().replace(/\D/g, "");
-    return Number(folioB) - Number(folioA);
-  });
+      collection(
+        db,
+        "almacenes",
+        "almacen_zapata",
+        "salidas1.0"
+      )
 
-  renderizarTarjetas(todasLasSalidas);
-}
+    );
 
-/* ============================
-   🔵 RENDER TARJETAS
-   ============================ */
-function renderizarTarjetas(lista) {
-  contenedor.innerHTML = "";
+    const snap = await getDocs(q1);
 
-  lista.forEach(data => {
-    const tarjeta = document.createElement("div");
-    tarjeta.className = "tarjeta";
+    snap.forEach(doc => {
 
-    tarjeta.innerHTML = `
-      <h3>Folio: ${data.folio || "Sin folio"}</h3>
-      <div class="campo"><strong>Fecha:</strong> ${data.fecha || "Sin fecha"}</div>
-      <div class="campo"><strong>Entrega:</strong> ${data.entrega || "N/D"}</div>
-      <div class="campo"><strong>Recibe:</strong> ${data.recibe || "N/D"}</div>
-      <div class="campo"><strong>Destino:</strong> ${data.destino || "N/D"}</div>
-      <div class="campo"><strong>Cincho:</strong> ${data.folioCincho || "Sin asignar"}</div>
+      const data = doc.data();
 
-      <div class="campo"><strong>Artículos:</strong></div>
-      <ul>
-        ${(data.articulos || []).map(item => `
-          <li>${item.nombre} (Código: ${item.codigo}) - ${item.cantidad}</li>
-        `).join("")}
-      </ul>
+      todasLasSalidas.push(data);
 
-      <div class="firmas">
-        <div class="firma">
-          <img src="${data.firmaEntrega || ""}" alt="Firma Entrega">
-          <label>Firma entrega</label>
-        </div>
-        <div class="firma">
-          <img src="${data.firmaRecibe || ""}" alt="Firma Recibe">
-          <label>Firma recibe</label>
-        </div>
+    });
+
+    // 🔥 MÁS NUEVOS ARRIBA
+    todasLasSalidas.sort((a,b)=>{
+
+      return String(b.folio || "")
+        .localeCompare(String(a.folio || ""));
+
+    });
+
+    filtrarSalidas();
+
+  }catch(error){
+
+    console.error(error);
+
+    contenedor.innerHTML = `
+      <div class="sin-resultados">
+        Error cargando datos
       </div>
     `;
 
-    contenedor.appendChild(tarjeta);
-  });
-}
-
-/* ============================
-   🔵 FILTRO DE MES
-   ============================ */
-window.filtrarPorMes = function () {
-  const mesSeleccionado = document.getElementById("mes").value;
-
-  if (mesSeleccionado === "todos") {
-    renderizarTarjetas(todasLasSalidas);
-    return;
   }
 
-  const filtradas = todasLasSalidas.filter(data => {
-    if (!data.fecha) return false;
-    const partes = data.fecha.split("-");
-    return partes[1] === mesSeleccionado;
+}
+
+/* ==========================================
+   RENDER
+========================================== */
+
+function renderizarTarjetas(lista){
+
+  contenedor.innerHTML = "";
+
+  if(lista.length === 0){
+
+    contenedor.innerHTML = `
+      <div class="sin-resultados">
+        No hay salidas registradas
+      </div>
+    `;
+
+    return;
+
+  }
+
+  lista.forEach(data => {
+
+    const tarjeta =
+      document.createElement("div");
+
+    tarjeta.className = "tarjeta";
+
+    tarjeta.innerHTML = `
+
+      <h3>
+        Folio:
+        ${data.folio || "Sin folio"}
+      </h3>
+
+      <div class="campo">
+        <strong>Fecha:</strong>
+        ${
+          data.fecha
+            ? new Date(data.fecha)
+                .toLocaleString("es-MX")
+            : "Sin fecha"
+        }
+      </div>
+
+      <div class="campo">
+        <strong>Entrega:</strong>
+        ${data.entrega || "N/D"}
+      </div>
+
+      <div class="campo">
+        <strong>Recibe:</strong>
+        ${data.recibe || "N/D"}
+      </div>
+
+      <div class="campo">
+        <strong>Destino:</strong>
+        ${data.destino || "N/D"}
+      </div>
+
+      <div class="campo">
+        <strong>Cincho:</strong>
+        ${data.folioCincho || "Sin asignar"}
+      </div>
+
+      <div class="campo">
+        <strong>Artículos:</strong>
+      </div>
+
+      <ul>
+
+        ${(data.articulos || []).map(item => `
+
+          <li>
+
+            ${item.nombre || "Sin nombre"}
+
+            <br>
+
+            Código:
+            ${item.codigo || "N/D"}
+
+            <br>
+
+            Cantidad:
+            ${item.cantidad || 0}
+
+          </li>
+
+        `).join("")}
+
+      </ul>
+
+      <div class="firmas">
+
+        <div class="firma">
+
+          <img
+            src="${data.firmaEntrega || ""}"
+            alt="Firma entrega"
+          >
+
+          <label>Firma entrega</label>
+
+        </div>
+
+        <div class="firma">
+
+          <img
+            src="${data.firmaRecibe || ""}"
+            alt="Firma recibe"
+          >
+
+          <label>Firma recibe</label>
+
+        </div>
+
+      </div>
+
+    `;
+
+    contenedor.appendChild(tarjeta);
+
   });
 
+}
+
+/* ==========================================
+   FILTRO
+========================================== */
+
+window.filtrarSalidas = function(){
+
+  const mesSeleccionado =
+    document.getElementById("mes").value;
+
+  const fechaBusqueda =
+    document.getElementById("fechaBusqueda").value;
+
+  let filtradas = [...todasLasSalidas];
+
+  /* ==========================================
+     FILTRAR POR MES
+  ========================================== */
+
+  filtradas = filtradas.filter(data => {
+
+    if(!data.fecha) return false;
+
+    const fechaObj =
+      new Date(data.fecha);
+
+    if(isNaN(fechaObj)) return false;
+
+    const mes =
+      String(fechaObj.getMonth() + 1)
+      .padStart(2,"0");
+
+    return mes === mesSeleccionado;
+
+  });
+
+  /* ==========================================
+     FILTRO FECHA EXACTA
+  ========================================== */
+
+  if(fechaBusqueda){
+
+    filtradas = filtradas.filter(data => {
+
+      if(!data.fecha) return false;
+
+      const fechaObj =
+        new Date(data.fecha);
+
+      if(isNaN(fechaObj)) return false;
+
+      const yyyy =
+        fechaObj.getFullYear();
+
+      const mm =
+        String(fechaObj.getMonth() + 1)
+        .padStart(2,"0");
+
+      const dd =
+        String(fechaObj.getDate())
+        .padStart(2,"0");
+
+      const fechaFormateada =
+        `${yyyy}-${mm}-${dd}`;
+
+      return fechaFormateada === fechaBusqueda;
+
+    });
+
+  }
+
   renderizarTarjetas(filtradas);
-};
+
+}
+
+/* ==========================================
+   MES ACTUAL AUTOMÁTICO
+========================================== */
+
+const hoy = new Date();
+
+const mesActual =
+  String(hoy.getMonth() + 1)
+  .padStart(2,"0");
+
+document.getElementById("mes").value =
+  mesActual;
+
+/* ==========================================
+   INICIAR
+========================================== */
 
 cargarSalidas();
+
 </script>
+
 </body>
 </html>
